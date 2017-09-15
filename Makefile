@@ -33,10 +33,11 @@ DEBUG_LINK_LIB = -lHBaseClient_d
 RELEASE_LINK_LIB = -lHBaseClient
 
 #flags to pass to the CPP compiler & linker
-CPPFLAGS_DEBUG := -D_GLIBCXX_USE_CXX11_ABI=0 -g -Wall -std=c++14 -pedantic -fPIC -MMD -MP
-CPPFLAGS_RELEASE := -D_GLIBCXX_USE_CXX11_ABI=0 -DNDEBUG -O2 -Wall -std=c++14 -pedantic -fPIC -MMD -MP
-LDFLAGS := -lprotobuf -lzookeeper_mt -lsasl2 -lfolly -lwangle
-LINKFLAG := -shared
+CPPFLAGS_DEBUG = -D_GLIBCXX_USE_CXX11_ABI=0 -g -Wall -std=c++14 -pedantic -fPIC
+CPPFLAGS_RELEASE = -D_GLIBCXX_USE_CXX11_ABI=0 -DNDEBUG -O2 -Wall -std=c++14 -pedantic -fPIC
+LDFLAGS = -lzookeeper_mt -lprotobuf -lfolly -lwangle -lboost_system -lboost_filesystem -lglog -lsasl2 -lkrb5 -lssl -lcrypto -pthread -latomic -lgflags
+LDFLAGS_DEBUG = $(LDFLAGS)
+LDFLAGS_RELEASE = $(LDFLAGS)
 
 #define list of source files and object files
 ALLSRC := $(foreach sdir,$(SRC_DIR),$(wildcard $(sdir)/*.cc))
@@ -59,12 +60,12 @@ vpath %.cc $(SRC_DIR)
 $(DEBUG_BUILD_DIR)/load-client.o: load-client.cc
 	$(CC) -c load-client.cc -o $(DEBUG_BUILD_DIR)/load-client.o -MMD -MP -MT$$@ $(CPPFLAGS_DEBUG) $(INCLUDES)
 $(LOAD_CLIENT_DEBUG): $(DEBUG_BUILD_DIR)/load-client.o
-	$(CC) $^ -o $@ $(LDFLAGS_DEBUG) $(DEBUG_LINK_LIB)
+	$(CC) $^ -o $@ $(DEBUG_LINK_LIB) $(LDFLAGS_DEBUG)
 
 $(RELEASE_BUILD_DIR)/load-client.o: load-client.cc
 	$(CC) -c load-client.cc -o $(RELEASE_BUILD_DIR)/load-client.o -MMD -MP -MT$$@ $(CPPFLAGS_RELEASE) $(INCLUDES)
 $(LOAD_CLIENT_RELEASE): $(RELEASE_BUILD_DIR)/load-client.o
-	$(CC) $^ -o $@ $(LDFLAGS_RELEASE) $(RELEASE_LINK_LIB)
+	$(CC) $^ -o $@ $(RELEASE_LINK_LIB) $(LDFLAGS_RELEASE)
 
 .PHONY: all clean checkdirs default help
 
